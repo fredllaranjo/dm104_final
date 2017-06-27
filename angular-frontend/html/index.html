@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html ng-app="CadastroDevApp">
+    <head>
+        <meta charset="UTF-8">
+        <title>List Angular JS 1.6.4</title>
+        <script src="../js/angular.min.js"></script>
+        <script src="../js/app.js"></script>
+    </head>
+    <body>
+        <h1>Cadastro de Desenvolvedores</h1>
+        <div ng-controller="CadastroDevController">
+            <p>Nome: <input type="text" ng-model="dev.name"></p>
+            <p>Birthday: <input type="text" ng-model="dev.birthday"></p>
+            <p>Available Hours Month: <input type="text" ng-model="dev.availableHoursMonth"></p>
+            <input type="button" value={{buttonName}} ng-click="saveDev()"/>
+            <table>
+                <tr ng-repeat="dev in devs">
+                    <td>{{dev.name}}</td>
+                    <td>{{dev.availableHoursMonth}}</td>
+                    <!-- {{dev.formation}} {{dev.workHistory}} {{dev.competences}} {{dev.techonologies}}  -->
+                    <td><input type="button" value="U" ng-click="editDev($index, dev)"/></td>
+                    <td><input type="button" value="X" ng-click="removeDev($index, dev)"/></td>
+                </tr>
+            </table>
+        </div>
+    </body>
+</html>
