@@ -1,7 +1,20 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var mysql = require('mysql');
+var mysql = require('pg');
 
+/*
+Host
+ec2-23-21-220-152.compute-1.amazonaws.com
+Database
+da7t36mmrt0tca
+User
+xruzngbbplcpsg
+Port
+5432
+Password
+19801988d182bc07c404a4fdcea69e501d32509a24b708e10fdf0044281ede1f
+ */
 //dev-management-dm104.000webhostapp.com
 /*var con = mysql.createConnection({
   host: "localhost",
