@@ -5,9 +5,12 @@
 
             $scope.buttonName = 'Add';
             $scope.dev = {};
+            $scope.isFormDisabled = function () {
+                return angular.equals({}, $scope.dev);
+            };
             CadastroDevService.getDevs().then(function (data) {
                 $scope.devs = [];
-                data.forEach(function(dev) {
+                data.forEach(function (dev) {
                     var devBasic = {};
                     devBasic.id = dev.id;
                     devBasic.name = dev.name;
@@ -40,6 +43,11 @@
                     });
                 }
             };
+            $scope.cancel = function () {
+                $scope.buttonName = 'Add';
+                $scope.index = null;
+                $scope.dev = null;
+            };
             $scope.editDev = function (index, dev) {
                 $scope.buttonName = 'Edit';
                 $scope.index = index;
@@ -57,7 +65,30 @@
                     console.log('ERROR:' + error);
                 });
             };
-
+            //Competences
+            $scope.competence = null;
+            $scope.addCompetence = function () {
+                if (!$scope.dev.competences) {
+                    $scope.dev.competences = [];
+                }
+                $scope.dev.competences.push($scope.competence);
+                $scope.competence = null;
+            };
+            $scope.removeCompetence = function (index) {
+                $scope.dev.competences.splice(index, 1);
+            };
+            //Technologies
+            $scope.technology = null;
+            $scope.addTechnology = function () {
+                if (!$scope.dev.technologies) {
+                    $scope.dev.technologies = [];
+                }
+                $scope.dev.technologies.push($scope.technology);
+                $scope.technology = null;
+            };
+            $scope.removeTechnology = function (index) {
+                $scope.dev.technologies.splice(index, 1);
+            };
         }
         ]).service('CadastroDevService', ['$http', '$q', function ($http, $q) {
             var service = this;
