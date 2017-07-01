@@ -4,44 +4,60 @@
 <head>
     <meta charset="UTF-8">
     <title>Developers Register</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <link rel="stylesheet" href="css//bootstrap.min.css">
+    <link rel="stylesheet" href="css/bootstrap-theme.min.css">
+    <script src="js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="css/style.css">
     <script src="js/angular.min.js"></script>
     <script src="js/app.js"></script>
 </head>
 
+
 <body>
     <div class="top">
-        <h1>Developers Register</h1>
+        <h1 class="title">Developers Register</h1>
     </div>
     <div ng-controller="CadastroDevController">
         <div class="content">
             <div class="form">
-                <div class="formfields">
-                    <p><label>Name: </label><input type="text" ng-model="dev.name" /></p>
-                    <p><label>Birthday: </label><input type="text" ng-model="dev.birthday" /></p>
-                    <p><label>Available Hours Month: </label><input type="text" ng-model="dev.availableHoursMonth" /></p>
+                <div class="col-xs-10 formfields">
+                    <div class="col-xs-12 field">
+                        <label class="col-xs-4">Name: </label>
+                        <input class="col-xs-8 input-form" type="text" ng-model="dev.name"/>
+                    </div>
+                    <div class="col-xs-12 field">
+                        <label class="col-xs-4">Birthday:</label>
+                        <input class="col-xs-8 input-form" type="text" ng-model="dev.birthday"/>
+                    </div>
+                    <div class="col-xs-12 field"  >
+                        <label class="col-xs-8">Available Hours Month:</label>
+                        <input class="col-xs-4 input-form" type="text" ng-model="dev.availableHoursMonth"/>
+                    </div>
                 </div>
-                <div class="competences">
+                <div class="col-xs-7 competences">
                     <table>
                         <thead>
-                            <th>Competence</th>
+                            <th><label class="col-xs-12">Competence</label></th>
                         </thead>
-                        <td><input type="text" ng-model="competence" /></td>
-                        <td><input type="button" value='+' ng-click="addCompetence()" /></td>
+                        <td><input class="input-form" type="text" ng-model="competence" /></td>
+                        <td>
+                            <input type="button" value='+' ng-click="addCompetence()" />
+                        </td>
                         <tbody class="tabledata">
                             <tr ng-repeat="competence in dev.competences">
                                 <td>{{competence}}</td>
-                                <td><input type="button" value="X" ng-click="removeCompetence($index)" /></td>
+                                <td><input class="input-form" type="button" value="X" ng-click="removeCompetence($index)" /></td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-                <div class="technologies">
+                <div class="col-xs-7 technologies">
                     <table>
                         <thead>
-                            <th>Technology</th>
+                            <th><label class="col-xs-12">Technology</label></th>
                         </thead>
-                        <td><input type="text" ng-model="technology" /></td>
+                        <td><input class="input-form" type="text" ng-model="technology" /></td>
                         <td><input type="button" value='+' ng-click="addTechnology()" /></td>
                         <tbody class="tabledata">
                             <tr ng-repeat="technology in dev.technologies">
@@ -65,9 +81,8 @@
                     <tr ng-repeat="dev in devs">
                         <td class="tabledatavalue">{{dev.name}}</td>
                         <td class="tabledatavalue">{{dev.availableHoursMonth}}</td>
-                        <!-- {{dev.formation}} {{dev.workHistory}} {{dev.competences}} {{dev.techonologies}}  -->
-                        <td><input type="button" value="U" ng-click="editDev($index, dev)" /></td>
-                        <td><input type="button" value="X" ng-click="removeDev($index, dev)" /></td>
+                        <td><input type="button" value="Update" ng-click="editDev($index, dev)" /></td>
+                        <td><input type="button" value="Delete" ng-click="removeDev($index, dev)"/></td>
                     </tr>
                 </tbody>
             </table>
@@ -79,4 +94,5 @@
         <p>DM104 - Frederico Augusto Laranjo Silva</p>
     </div>
 </footer>
+
 </html>
