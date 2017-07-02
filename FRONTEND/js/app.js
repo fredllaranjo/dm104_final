@@ -34,7 +34,7 @@
                 } else {
                     var dev = $scope.dev;
                     CadastroDevService.updateDev(dev).then(function (data) {
-                        $scope.devs[$scope.index] = data;
+                        $scope.devs[$scope.index] = dev;
                         $scope.buttonName = 'Add';
                         $scope.index = null;
                         $scope.dev = null;

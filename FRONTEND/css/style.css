@@ -64,7 +64,7 @@ table.devtable thead{
  font-size: 18px;
  color: #fff;
 }
-input[type="text"] {
+input[type="text"],input[type="number"] {
  background-color: rgba( 0, 0, 0, 0.2 );
  color: #fff;
  border-radius: 3px;

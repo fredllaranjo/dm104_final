@@ -12,7 +12,7 @@ var config = {
     port: 5432,
     ssl: true,
     max: 10, // max number of clients in pool
-    idleTimeoutMillis: 5000, // close & remove clients which have been idle > 1 second
+    idleTimeoutMillis: 5000, // close & remove clients which have been idle > 5 second
 };
 
 // create a pool
@@ -76,7 +76,7 @@ app.get(baseURL + '/:id', function (req, res) {
             if (err) throw err;
             var firstResult = result.rows[0];
             dev = {
-                id: firstResult.id,
+                id: firstResult.dev_id,
                 name: firstResult.name,
                 birthday: firstResult.birthday,
                 availableHoursMonth: firstResult.available_hours_month,
@@ -103,7 +103,7 @@ app.get(baseURL + '/:id', function (req, res) {
 
 app.post(baseURL + '/', function (req, res) {
     console.log("POST dev name: " + req.body.name);
-    if (req.body.name && ((req.body.competences && req.body.competences != []) || (req.body.competences && req.body.competences != []))) {
+    if (req.body.name && req.body.birthday && req.body.availableHoursMonth && ((req.body.competences && req.body.competences != []) || (req.body.competences && req.body.competences != []))) {
         var newDev = {
             name: req.body.name,//Fred Laranjo
             birthday: req.body.birthday,//24/03/1992
@@ -113,53 +113,45 @@ app.post(baseURL + '/', function (req, res) {
         }
         pool.connect(function (err, client, done) {
             if (err) throw err;
-            var query = 'INSERT INTO devs (name, birthday, available_hours_month) VALUES (\'' + newDev.name + '\', \'' + newDev.birthday + '\', \'' + newDev.availableHoursMonth + '\') RETURNING id;';
+            var query = 'INSERT INTO devs (name, birthday, available_hours_month) VALUES (\'' + newDev.name + '\', \'' + newDev.birthday + '\', ' + newDev.availableHoursMonth + ') RETURNING id;';
 
             client.query(query, function (err, result) {
                 if (err) throw err;
                 newDev.id = result.rows[0].id;
+                if (newDev.competences && newDev.competences != []) {
+                    var query = 'INSERT INTO dev_competences (dev_id, competence) VALUES ';
+                    var comma = false;
+                    newDev.competences.forEach(function (competence) {
+                        if (comma)
+                            query += ',';
+                        query += '(' + newDev.id + ', \'' + competence + '\')';
+                        comma = true;
+                    }, this);
+                    query += ';';
+                    console.log(query);
+                    client.query(query, function (err, result) {
+                        if (err) throw err;
+                    });
+                }
+                if (newDev.technologies && newDev.technologies != []) {
+                    var query = 'INSERT INTO dev_technologies (dev_id, technology) VALUES ';
+                    var comma = false;
+                    newDev.technologies.forEach(function (technology) {
+                        if (comma)
+                            query += ',';
+                        query += '(' + newDev.id + ', \'' + technology + '\')';
+                        comma = true;
+                    }, this);
+                    query += ';';
+                    console.log(query);
+                    client.query(query, function (err, result) {
+                        if (err) throw err;
+                    });
+                }
                 res.status(200).json(newDev);
             });
             client.release();
         });
-        if (newDev.competences && newDev.competences != []) {
-            pool.connect(function (err, client, done) {
-                if (err) throw err;
-                var query = 'INSERT INTO dev_competences (dev_id, competence) VALUES ';
-                var comma = false;
-                newDev.competences.forEach(function (competence) {
-                    if (comma)
-                        query += ',';
-                    query += '(\'' + newDev.id + '\', \'' + competence + '\')';
-                    comma = true;
-                }, this);
-                query += ';';
-
-                client.query(query, function (err, result) {
-                    if (err) throw err;
-                });
-                client.release();
-            });
-        }
-        if (newDev.technologies && newDev.technologies != []) {
-            pool.connect(function (err, client, done) {
-                if (err) throw err;
-                var query = 'INSERT INTO dev_technologies (dev_id, technology) VALUES ';
-                var comma = false;
-                newDev.technologies.forEach(function (technology) {
-                    if (comma)
-                        query += ',';
-                    query += '(\'' + newDev.id + '\', \'' + technology + '\')';
-                    comma = true;
-                }, this);
-                query += ';';
-
-                client.query(query, function (err, result) {
-                    if (err) throw err;
-                });
-                client.release();
-            });
-        }
     } else {
         res.status(400).send('Enviados valores inválidos');
     }
@@ -167,40 +159,80 @@ app.post(baseURL + '/', function (req, res) {
 
 app.put(baseURL + '/', function (req, res) {
     console.log("PUT dev id: " + req.body.id);
-    var dev = null;
-    for (var index = 0; index < devs.length; index++) {
-        if (devs[index] != null && devs[index].id == req.body.id) {
-            dev = devs[index];
-            break;
+    if (req.body.id && req.body.name && req.body.birthday && req.body.availableHoursMonth && ((req.body.competences && req.body.competences != []) || (req.body.competences && req.body.competences != []))) {
+        var newDev = {
+            id: req.body.id,//Fred Laranjo
+            name: req.body.name,//Fred Laranjo
+            birthday: req.body.birthday,//24/03/1992
+            competences: req.body.competences,//['Team Leadership','Development','Architecture','DevOps']
+            technologies: req.body.technologies,//['Java','C#','JavaScript',C','C++','HTML5','CSS3']
+            availableHoursMonth: req.body.availableHoursMonth//30
         }
-    }
-    if (dev) {
-        dev.name = req.body.name;
-        dev.birthday = req.body.birthday;
-        dev.competences = req.body.competences;
-        dev.technologies = req.body.technologies;
-        dev.availableHoursMonth = req.body.availableHoursMonth;
-        res.status(200).json(dev);
+        pool.connect(function (err, client, done) {
+            if (err) throw err;
+            var query = 'UPDATE devs SET name = \'' + newDev.name + '\', birthday = \'' + newDev.birthday + '\', available_hours_month = ' + newDev.availableHoursMonth + ' WHERE id = ' + newDev.id + ';';
+            console.log(query);
+            client.query(query, function (err, result) {
+                if (err) throw err;
+                var affectedRows = result.rowCount;
+                if (affectedRows) {
+                    if (newDev.competences && newDev.competences != []) {
+                        var query = 'DELETE FROM dev_competences WHERE dev_id = ' + newDev.id + '; INSERT INTO dev_competences (dev_id, competence) VALUES ';
+                        var comma = false;
+                        newDev.competences.forEach(function (competence) {
+                            if (comma)
+                                query += ',';
+                            query += '(' + newDev.id + ', \'' + competence + '\')';
+                            comma = true;
+                        }, this);
+                        query += ';';
+                        console.log(query);
+                        client.query(query, function (err, result) {
+                            if (err) throw err;
+                        });
+                    }
+                    if (newDev.technologies && newDev.technologies != []) {
+                        var query = 'DELETE FROM dev_technologies WHERE dev_id = ' + newDev.id + '; INSERT INTO dev_technologies (dev_id, technology) VALUES ';
+                        var comma = false;
+                        newDev.technologies.forEach(function (technology) {
+                            if (comma)
+                                query += ',';
+                            query += '(' + newDev.id + ', \'' + technology + '\')';
+                            comma = true;
+                        }, this);
+                        query += ';';
+                        console.log(query);
+                        client.query(query, function (err, result) {
+                            if (err) throw err;
+                        });
+                    }
+                    res.status(200).send('Atualizado com sucesso!');
+                } else {
+                    notFound(res);
+                }
+            });
+            client.release();
+        });
     } else {
-        notFound(res);
+        res.status(400).send('Enviados valores inválidos');
     }
 });
 
 app.delete(baseURL + '/:id', function (req, res) {
-    console.log("DELETE dev id: |" + req.params.id + "|");
-    var indexFound = null;
-    for (var index = 0; index < devs.length; index++) {
-        console.log("DELETE: |" + index + "| |" + devs[index].id + "|");
-        if (devs[index] != null && parseInt(devs[index].id, 10) == parseInt(req.params.id, 10)) {
-            console.log("found");
-            indexFound = index;
-            break;
-        }
-    }
-    if (indexFound != null) {
-        devs.splice(indexFound, 1);
-        res.status(200).send('Apagou');
-    } else {
-        notFound(res);
-    }
+    console.log("DELETE dev id: " + req.params.id);
+    pool.connect(function (err, client, done) {
+        if (err) throw err;
+        // execute a query on our database
+        var query = 'DELETE from devs d WHERE d.id = ' + req.params.id + ';';
+        client.query(query, function (err, result) {
+            if (err) throw err;
+            var affectedRows = result.rowCount;
+            if (affectedRows) {
+                res.status(200).send('Deletado com sucesso!');
+            } else {
+                notFound(res);
+            }
+        });
+        client.release();
+    });
 });
